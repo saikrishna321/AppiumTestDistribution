@@ -1,6 +1,5 @@
 import com.appium.ios.SimManager;
-import com.appium.manager.AppiumDriverManager;
-import org.openqa.selenium.remote.DesiredCapabilities;
+import com.github.manager.AppiumDriverManager;
 import org.testng.annotations.Test;
 
 /**
@@ -8,7 +7,7 @@ import org.testng.annotations.Test;
  */
 public class SimulatorParserTest {
 
-    SimManager simManager;
+    SimManager          simManager;
     AppiumDriverManager appiumDriverManager = new AppiumDriverManager();
 
     public SimulatorParserTest() throws Exception {

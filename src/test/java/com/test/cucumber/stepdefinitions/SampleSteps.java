@@ -1,6 +1,6 @@
 package com.test.cucumber.stepdefinitions;
 
-import static com.appium.manager.AppiumDriverManager.getDriver;
+import static com.test.cucumber.stepdefinitions.DriverManager.getDriver;
 
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -12,26 +12,22 @@ public class SampleSteps {
         super();
     }
 
-    @Given
-            ("^I have the this useless scenario$")
+    @Given("^I have the this useless scenario$")
     public void uselessScenario() {
         System.out.println("Passed");
-        System.out.println(
-                "*****DriverSession***" + Thread.currentThread().getName()
-                        + getDriver().toString());
+        System.out.println("*****DriverSession***" + Thread.currentThread()
+            .getName() + getDriver().toString());
     }
 
-    @When
-            ("^I click on (\\d+) number")
-    public void I_sleep_for_seconds(int arg1)
-            throws InterruptedException {
+    @When("^I click on (\\d+) number")
+    public void I_sleep_for_seconds(int arg1) throws InterruptedException {
         Thread.sleep(arg1 * 1000);
-        getDriver().findElementByXPath(".//*[@text=" + arg1 + "]").click();
+        getDriver().findElementByXPath(".//*[@text=" + arg1 + "]")
+            .click();
         System.out.println("Passed");
     }
 
-    @Then
-            ("^It should finnish$")
+    @Then("^It should finnish$")
     public void It_should_finnish() {
         System.out.println("Passed");
     }

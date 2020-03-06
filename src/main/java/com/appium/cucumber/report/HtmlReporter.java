@@ -1,29 +1,28 @@
 package com.appium.cucumber.report;
 
-import com.appium.filelocations.FileLocations;
-import net.masterthought.cucumber.Configuration;
-import net.masterthought.cucumber.ReportBuilder;
-import org.apache.velocity.exception.VelocityException;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HtmlReporter {
+import com.appium.filelocations.FileLocations;
+import net.masterthought.cucumber.Configuration;
+import net.masterthought.cucumber.ReportBuilder;
+import org.apache.velocity.exception.VelocityException;
 
-    public File reportOutputDirectory = new File(System.getProperty("user.dir")
-            + FileLocations.OUTPUT_DIRECTORY);
-    public List<String> list = new ArrayList<String>();
+public class HtmlReporter {
+    public File         reportOutputDirectory = new File(
+        System.getProperty("user.dir") + FileLocations.OUTPUT_DIRECTORY);
+    public List<String> list                  = new ArrayList<String>();
 
     public void listFilesForFolder(final File folder) {
         for (final File fileEntry : folder.listFiles()) {
             if (fileEntry.isDirectory()) {
                 listFilesForFolder(fileEntry);
-            } else if (fileEntry.getName().endsWith(".json")) {
+            } else if (fileEntry.getName()
+                .endsWith(".json")) {
                 System.out.println("*******" + fileEntry.getName());
                 list.add(reportOutputDirectory + "/" + fileEntry.getName());
-
             }
         }
     }

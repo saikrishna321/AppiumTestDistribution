@@ -1,20 +1,36 @@
 package com.appium.executor;
 
 import static com.appium.filelocations.FileLocations.PARALLEL_XML_LOCATION;
-import static com.appium.utils.ConfigFileManager.CATEGORY;
-import static com.appium.utils.ConfigFileManager.EXCLUDE_GROUPS;
-import static com.appium.utils.ConfigFileManager.INCLUDE_GROUPS;
-import static com.appium.utils.ConfigFileManager.LISTENERS;
-import static com.appium.utils.ConfigFileManager.RUNNER_LEVEL;
-import static com.appium.utils.ConfigFileManager.SUITE_NAME;
 import static com.appium.utils.FigletHelper.figlet;
+import static com.github.utils.ConfigFileManager.CATEGORY;
+import static com.github.utils.ConfigFileManager.EXCLUDE_GROUPS;
+import static com.github.utils.ConfigFileManager.INCLUDE_GROUPS;
+import static com.github.utils.ConfigFileManager.LISTENERS;
+import static com.github.utils.ConfigFileManager.RUNNER_LEVEL;
+import static com.github.utils.ConfigFileManager.SUITE_NAME;
 import static java.lang.System.getProperty;
 import static java.util.Collections.addAll;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
-import com.appium.manager.AppiumDevice;
-import com.appium.manager.DeviceAllocationManager;
-import com.appium.utils.ConfigFileManager;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import com.github.manager.AppiumDevice;
+import com.github.manager.DeviceAllocationManager;
+import com.github.utils.ConfigFileManager;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.jakewharton.fliptables.FlipTableConverters;
@@ -32,36 +48,19 @@ import org.testng.xml.XmlSuite;
 import org.testng.xml.XmlSuite.ParallelMode;
 import org.testng.xml.XmlTest;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 public class MyTestExecutor {
     private final DeviceAllocationManager deviceAllocationManager;
-    private List<String> items = new ArrayList<String>();
-    private List<String> listeners = new ArrayList<>();
-    private List<String> groupsInclude = new ArrayList<>();
-    private List<String> groupsExclude = new ArrayList<>();
+    private       List<String>            items         = new ArrayList<String>();
+    private       List<String>            listeners     = new ArrayList<>();
+    private       List<String>            groupsInclude = new ArrayList<>();
+    private       List<String>            groupsExclude = new ArrayList<>();
 
     public MyTestExecutor() {
         deviceAllocationManager = DeviceAllocationManager.getInstance();
     }
 
     public boolean runMethodParallelAppium(List<String> test, String pack, int devicecount,
-                                           String executionType) throws Exception {
+        String executionType) throws Exception {
         Set<Method> resources = getMethods(pack);
         boolean hasFailure;
         dryRunTestInfo(resources);
@@ -69,21 +68,17 @@ public class MyTestExecutor {
         String runnerLevel = RUNNER_LEVEL.get();
 
         if (executionType.equalsIgnoreCase("distribute")) {
-            if (runnerLevel != null
-                && runnerLevel.equalsIgnoreCase("class")) {
-                constructXmlSuiteForDistribution(test, createTestsMap(resources),
-                    getSuiteName(), getCategoryName(),
-                    devicecount);
+            if (runnerLevel != null && runnerLevel.equalsIgnoreCase("class")) {
+                constructXmlSuiteForDistribution(test, createTestsMap(resources), getSuiteName(),
+                    getCategoryName(), devicecount);
             } else {
                 constructXmlSuiteForDistributionMethods(test, createTestsMap(resources),
-                    getSuiteName(), getCategoryName(),
-                    devicecount);
+                    getSuiteName(), getCategoryName(), devicecount);
             }
             hasFailure = runMethodParallel();
         } else {
-            constructXmlSuiteForParallel(pack, test, createTestsMap(resources),
-                getSuiteName(), getCategoryName(), devicecount,
-                deviceAllocationManager.getDevices());
+            constructXmlSuiteForParallel(pack, test, createTestsMap(resources), getSuiteName(),
+                getCategoryName(), devicecount, deviceAllocationManager.getDevices());
             hasFailure = runMethodParallel();
         }
         System.out.println("Finally complete");
@@ -103,7 +98,8 @@ public class MyTestExecutor {
 
         while (iter.hasNext()) {
             url = iter.next();
-            if (url.toString().contains("test-classes")) {
+            if (url.toString()
+                .contains("test-classes")) {
                 break;
             }
         }
@@ -122,19 +118,21 @@ public class MyTestExecutor {
             Multimap<String, Map<String, String>> dryRunResults = ArrayListMultimap.create();
             resources.forEach(method -> {
                 HashMap<String, String> methodAndGroups = new HashMap<>();
-                String className = method.getDeclaringClass().getSimpleName();
+                String className = method.getDeclaringClass()
+                    .getSimpleName();
                 String methodName = method.getName();
-                String[] groups = method.getAnnotation(Test.class).groups();
+                String[] groups = method.getAnnotation(Test.class)
+                    .groups();
                 methodAndGroups.put(methodName, Arrays.toString(groups));
                 dryRunResults.put(className, methodAndGroups);
             });
 
             List<TestNGTestInfo> testInfo = new ArrayList<>();
-            for (Map.Entry<String, Map<String, String>> stringObjectEntry
-                : dryRunResults.entries()) {
-                stringObjectEntry.getValue().forEach((key, value) ->
-                    testInfo.add(new TestNGTestInfo(stringObjectEntry.getKey(),
-                        key, value)));
+            for (Map.Entry<String, Map<String, String>> stringObjectEntry :
+                dryRunResults.entries()) {
+                stringObjectEntry.getValue()
+                    .forEach((key, value) -> testInfo.add(
+                        new TestNGTestInfo(stringObjectEntry.getKey(), key, value)));
             }
             System.out.println(FlipTableConverters.fromIterable(testInfo, TestNGTestInfo.class));
             System.exit(1);
@@ -151,10 +149,8 @@ public class MyTestExecutor {
     }
 
     public XmlSuite constructXmlSuiteForParallel(String pack, List<String> testcases,
-                                                 Map<String, List<Method>> methods,
-                                                 String suiteName, String category,
-                                                 int deviceCount,
-                                                 List<AppiumDevice> deviceSerail) {
+        Map<String, List<Method>> methods, String suiteName, String category, int deviceCount,
+        List<AppiumDevice> deviceSerail) {
         ArrayList<String> listeners = new ArrayList<>();
         listeners.add("com.appium.manager.AppiumParallelTestListener");
         listeners.add("com.appium.utils.RetryListener");
@@ -172,8 +168,11 @@ public class MyTestExecutor {
             XmlTest test = new XmlTest(suite);
             test.setName(category + "-" + i);
             test.setPreserveOrder(false);
-            test.addParameter("device", deviceSerail.get(i).getDevice().getUdid());
-            test.addParameter("hostName", deviceSerail.get(i).getHostName());
+            test.addParameter("device", deviceSerail.get(i)
+                .getDevice()
+                .getUdid());
+            test.addParameter("hostName", deviceSerail.get(i)
+                .getHostName());
             test.setIncludedGroups(groupsInclude);
             test.setExcludedGroups(groupsExclude);
             List<XmlClass> xmlClasses = writeXmlClass(testcases, methods);
@@ -183,8 +182,8 @@ public class MyTestExecutor {
         return suite;
     }
 
-    private List<XmlClass> writeXmlClass(List<String> testcases, Map<String,
-        List<Method>> methods) {
+    private List<XmlClass> writeXmlClass(List<String> testcases,
+        Map<String, List<Method>> methods) {
         List<XmlClass> xmlClasses = new ArrayList<>();
         for (String className : methods.keySet()) {
             if (className.contains("Test")) {
@@ -206,16 +205,13 @@ public class MyTestExecutor {
     }
 
     public XmlSuite constructXmlSuiteForDistribution(List<String> tests,
-                                                     Map<String, List<Method>> methods,
-                                                     String suiteName,
-                                                     String category,
-                                                     int deviceCount) {
+        Map<String, List<Method>> methods, String suiteName, String category, int deviceCount) {
         XmlSuite suite = new XmlSuite();
         suite.setName(suiteName);
         suite.setThreadCount(deviceCount);
         suite.setParallel(ParallelMode.CLASSES);
         suite.setVerbose(2);
-        listeners.add("com.appium.manager.AppiumParallelMethodTestListener");
+        listeners.add("com.github.manager.AppiumParallelMethodTestListener");
         listeners.add("com.appium.utils.RetryListener");
         include(listeners, LISTENERS);
         suite.setListeners(listeners);
@@ -232,12 +228,8 @@ public class MyTestExecutor {
         return suite;
     }
 
-
     public XmlSuite constructXmlSuiteForDistributionMethods(List<String> tests,
-                                                            Map<String, List<Method>> methods,
-                                                            String suiteName,
-                                                            String category,
-                                                            int deviceCount) {
+        Map<String, List<Method>> methods, String suiteName, String category, int deviceCount) {
         include(groupsInclude, INCLUDE_GROUPS);
         XmlSuite suite = new XmlSuite();
         suite.setName(suiteName);
@@ -245,7 +237,7 @@ public class MyTestExecutor {
         suite.setDataProviderThreadCount(deviceCount);
         suite.setVerbose(2);
         suite.setParallel(ParallelMode.METHODS);
-        listeners.add("com.appium.manager.AppiumParallelMethodTestListener");
+        listeners.add("com.github.manager.AppiumParallelMethodTestListener");
         listeners.add("com.appium.utils.RetryListener");
         include(listeners, LISTENERS);
         suite.setListeners(listeners);
@@ -262,8 +254,9 @@ public class MyTestExecutor {
     }
 
     private void writeTestNGFile(XmlSuite suite) {
-        try (FileWriter writer = new FileWriter(new File(
-            getProperty("user.dir") + PARALLEL_XML_LOCATION))) {
+        try (
+            FileWriter writer = new FileWriter(
+                new File(getProperty("user.dir") + PARALLEL_XML_LOCATION))) {
             writer.write(suite.toXml());
             writer.flush();
         } catch (IOException e) {
@@ -295,18 +288,17 @@ public class MyTestExecutor {
     public Map<String, List<Method>> createTestsMap(Set<Method> methods) {
         Map<String, List<Method>> testsMap = new HashMap<>();
         methods.forEach(method -> {
-            List<Method> methodsList = testsMap.computeIfAbsent(
-                method.getDeclaringClass().getPackage().getName()
-                    + "." + method.getDeclaringClass()
-                    .getSimpleName(), k -> new ArrayList<>());
+            List<Method> methodsList = testsMap.computeIfAbsent(method.getDeclaringClass()
+                .getPackage()
+                .getName() + "." + method.getDeclaringClass()
+                .getSimpleName(), k -> new ArrayList<>());
             methodsList.add(method);
         });
         return testsMap;
     }
 
     private void deleteOutputDirectory() {
-        File delete_output = new File(getProperty("user.dir")
-            + "/src/test/java/output/");
+        File delete_output = new File(getProperty("user.dir") + "/src/test/java/output/");
         File[] files = delete_output.listFiles();
 
         for (File file : files) {
@@ -314,8 +306,8 @@ public class MyTestExecutor {
         }
     }
 
-    public XmlSuite constructXmlSuiteForParallelCucumber(
-        int deviceCount, List<AppiumDevice> deviceSerail) {
+    public XmlSuite constructXmlSuiteForParallelCucumber(int deviceCount,
+        List<AppiumDevice> deviceSerail) {
         ArrayList<String> listeners = new ArrayList<>();
         listeners.add("com.cucumber.listener.CucumberListener");
         XmlSuite suite = new XmlSuite();
@@ -328,7 +320,9 @@ public class MyTestExecutor {
             XmlTest test = new XmlTest(suite);
             test.setName("TestNG Test" + i);
             test.setPreserveOrder(false);
-            test.addParameter("device", deviceSerail.get(i).getDevice().getUdid());
+            test.addParameter("device", deviceSerail.get(i)
+                .getDevice()
+                .getUdid());
             test.setPackages(getPackages());
         }
         return getXmlSuite(suite);
@@ -381,16 +375,16 @@ public class MyTestExecutor {
     }
 
     private class CreateGroups {
-        private List<String> tests;
+        private List<String>              tests;
         private Map<String, List<Method>> methods;
-        private String category;
-        private XmlSuite suite;
-        private List<XmlClass> xmlClasses;
-        private XmlTest test;
-        private List<XmlClass> writeXml;
+        private String                    category;
+        private XmlSuite                  suite;
+        private List<XmlClass>            xmlClasses;
+        private XmlTest                   test;
+        private List<XmlClass>            writeXml;
 
-        public CreateGroups(List<String> tests, Map<String, List<Method>> methods,
-                            String category, XmlSuite suite) {
+        public CreateGroups(List<String> tests, Map<String, List<Method>> methods, String category,
+            XmlSuite suite) {
             this.tests = tests;
             this.methods = methods;
             this.category = category;

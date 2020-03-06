@@ -1,21 +1,19 @@
 package com.appium.schema;
 
-import com.appium.manager.RemoteAppiumManager;
-import com.appium.utils.FigletHelper;
+import java.io.InputStream;
+import java.net.ConnectException;
+import java.net.InetAddress;
+import java.util.logging.Logger;
 
-import com.appium.capabilities.CapabilityManager;
+import com.appium.utils.FigletHelper;
+import com.github.capability.CapabilityManager;
+import com.github.manager.RemoteAppiumManager;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;
 import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
-
-import java.io.InputStream;
-import java.net.ConnectException;
-import java.net.InetAddress;
-import java.util.logging.Logger;
-
 
 public class CapabilitySchemaValidator {
 
@@ -30,8 +28,10 @@ public class CapabilitySchemaValidator {
             schema.validate(new JSONObject(capability.toString()));
             validateRemoteHosts();
         } catch (ValidationException e) {
-            if (e.getCausingExceptions().size() > 1) {
-                e.getCausingExceptions().stream()
+            if (e.getCausingExceptions()
+                .size() > 1) {
+                e.getCausingExceptions()
+                    .stream()
                     .map(ValidationException::getMessage)
                     .forEach(System.out::println);
             } else {
@@ -58,15 +58,14 @@ public class CapabilitySchemaValidator {
             default:
                 System.out.println("Just for codacy!!");
                 break;
-
         }
         return schema;
     }
 
     private void isPlatformInEnv() {
         if (System.getenv("Platform") == null) {
-            throw new IllegalArgumentException("Please execute with Platform environment"
-                + ":: Platform=android/ios/both mvn clean -Dtest=Runner test");
+            String msg = "Please set Platform environment variable.";
+            throw new IllegalArgumentException(msg);
         }
     }
 
@@ -74,7 +73,8 @@ public class CapabilitySchemaValidator {
         CapabilityManager capabilityManager;
         try {
             capabilityManager = CapabilityManager.getInstance();
-            if (capabilityManager.getCapabilities().has("hostMachines")) {
+            if (capabilityManager.getCapabilities()
+                .has("hostMachines")) {
                 JSONArray hostMachines = capabilityManager.getHostMachineObject();
                 for (Object hostMachine : hostMachines) {
                     JSONObject hostMachineJson = ((JSONObject) hostMachine);
@@ -83,8 +83,8 @@ public class CapabilitySchemaValidator {
                         isCloud = hostMachineJson.getBoolean("isCloud");
                     }
                     String machineIP = (String) hostMachineJson.get("machineIP");
-                    if (isCloud
-                        || InetAddress.getByName(machineIP).isReachable(5000)) {
+                    if (isCloud || InetAddress.getByName(machineIP)
+                        .isReachable(5000)) {
                         LOGGER.info("ATD is Running on " + machineIP);
                     } else {
                         FigletHelper.figlet("Unable to connect to Remote Host " + machineIP);

@@ -22,9 +22,8 @@ public class SliderTest extends UserBaseTest {
     public void dragNDrop() {
         login("login").click();
         waitForElement("dragAndDrop").click();
-        new WebDriverWait(driver, 30)
-            .until(ExpectedConditions
-                .elementToBeClickable(MobileBy.AccessibilityId("dragMe")));
+        new WebDriverWait(driver, 30).until(
+            ExpectedConditions.elementToBeClickable(MobileBy.AccessibilityId("dragMe")));
 
     }
 }

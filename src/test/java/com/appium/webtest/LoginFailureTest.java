@@ -10,7 +10,6 @@ import org.testng.annotations.Test;
 
 
 public class LoginFailureTest extends UserBaseTest {
-
     @Test
     public void loginTestFailure() throws InterruptedException {
         getDriver().get("https://www.thoughtworks.com");

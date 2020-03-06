@@ -1,6 +1,6 @@
 package com.test.site;
 
-import com.appium.manager.AppiumDriverManager;
+import com.github.manager.AppiumDriverManager;
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.MobileBy;
 import io.appium.java_client.MobileElement;
@@ -10,7 +10,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class UserBaseTest {
     public AppiumDriver<MobileElement> driver;
-
 
     public AppiumDriver<MobileElement> getDriver() {
         driver = AppiumDriverManager.getDriver();
@@ -22,7 +21,7 @@ public class UserBaseTest {
     }
 
     public WebElement waitForElement(String locator) {
-        return new WebDriverWait(getDriver(),30).until(ExpectedConditions
-                .elementToBeClickable(MobileBy.AccessibilityId(locator)));
+        return new WebDriverWait(getDriver(), 30).until(
+            ExpectedConditions.elementToBeClickable(MobileBy.AccessibilityId(locator)));
     }
 }

@@ -1,6 +1,6 @@
 package com.appium.ios;
 
-import com.appium.capabilities.CapabilityManager;
+import com.github.capability.CapabilityManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -20,7 +20,7 @@ public class SimManager {
 
     public boolean isSimulatorObjectAvailableInCapsJson() {
         JSONArray hostMachines = capabilityManager.getCapabilitiesArrayFromKey("hostMachines");
-        final boolean[] firstSimulatorObject = {false};
+        final boolean[] firstSimulatorObject = { false };
 
         if (hostMachines != null) {
             hostMachines.forEach(simulatorObject -> {

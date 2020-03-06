@@ -1,8 +1,6 @@
 package com.appium.executor;
 
 public class TestNGTestInfo {
-
-
     private String testClassName;
     private String testMethodName;
     private String testgroups;

@@ -1,8 +1,8 @@
 package com.appium.utils;
 
-import com.github.lalyos.jfiglet.FigletFont;
-
 import java.io.IOException;
+
+import com.github.lalyos.jfiglet.FigletFont;
 
 public class FigletHelper {
     public static void figlet(String text) {
