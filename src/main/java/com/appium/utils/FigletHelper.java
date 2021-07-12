@@ -1,10 +1,13 @@
 package com.appium.utils;
 
 import com.github.lalyos.jfiglet.FigletFont;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 
 public class FigletHelper {
+    private static final Logger LOGGER = Logger.getLogger(FigletHelper.class.getName());
+
     public static void figlet(String text) {
         String asciiArt1 = null;
         try {
@@ -12,6 +15,6 @@ public class FigletHelper {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println(asciiArt1);
+        LOGGER.info(asciiArt1);
     }
 }

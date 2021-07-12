@@ -15,6 +15,9 @@ import org.testng.annotations.DataProvider;
 public class WindowsRunCukes extends AbstractTestNGCucumberTests {
     public WindowsRunCukes() {
         System.out.printf("ThreadID: %d: RunCucumberTest%n", Thread.currentThread().getId());
+        System.setProperty("Platform", "windows");
+        System.setProperty("CONFIG_FILE", "./configs/windowsconfig.properties");
+        System.setProperty("CAPS", "./caps/windows.json");
     }
 
     @Override

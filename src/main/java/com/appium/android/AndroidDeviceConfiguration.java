@@ -7,6 +7,7 @@ import com.appium.manager.AppiumDevice;
 import com.appium.utils.CommandPrompt;
 import com.appium.device.DevicesByHost;
 import com.appium.device.HostMachineDeviceManager;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -17,6 +18,8 @@ public class AndroidDeviceConfiguration {
     private CommandPrompt cmd = new CommandPrompt();
     public static List<String> validDeviceIds = new ArrayList<>();
     private DevicesByHost devicesByHost;
+    private static final Logger LOGGER = Logger.getLogger(
+            AndroidDeviceConfiguration.class.getName());
 
     public AndroidDeviceConfiguration() {
         devicesByHost = HostMachineDeviceManager.getInstance().getDevicesByHost();
@@ -73,8 +76,7 @@ public class AndroidDeviceConfiguration {
                         destination);
         Process pc = pb.start();
         pc.waitFor();
-        System.out.println("Exited with Code::" + pc.exitValue());
-        System.out.println("Done");
+        LOGGER.info("Exited with Code::" + pc.exitValue());
         Thread.sleep(5000);
         return new AndroidDeviceConfiguration();
     }

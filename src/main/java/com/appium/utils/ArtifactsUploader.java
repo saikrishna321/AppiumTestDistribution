@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static com.appium.utils.OverriddenVariable.getOverriddenStringValue;
 
 public class ArtifactsUploader {
 
@@ -63,7 +64,7 @@ public class ArtifactsUploader {
     }
 
     private HashMap<String, String> getArtifactForHost(String hostMachine) throws Exception {
-        String platform = System.getenv("Platform");
+        String platform = getOverriddenStringValue("Platform");
         String app = "app";
         HashMap<String, String> artifactPaths = new HashMap<>();
         JSONObject android = capabilities

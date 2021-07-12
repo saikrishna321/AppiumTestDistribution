@@ -3,16 +3,16 @@ package com.video.recorder;
 import com.appium.filelocations.FileLocations;
 import com.appium.manager.AppiumDeviceManager;
 import com.appium.utils.CommandPrompt;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Logger;
 
 /**
  * Created by saikrisv on 2016/09/23.
  */
 public class Flick extends CommandPrompt implements IScreenRecord {
-    private static final Logger LOGGER = Logger.getLogger(Flick.class.getSimpleName());
+    private static final Logger LOGGER = Logger.getLogger(Flick.class.getName());
 
     /**
      * @param className     - Current test class name
@@ -68,7 +68,7 @@ public class Flick extends CommandPrompt implements IScreenRecord {
                         + " -u " + AppiumDeviceManager.getAppiumDevice()
                         .getDevice().getUdid() + " --trace";
                 runCommandThruProcess(android);
-                System.out.println("Stopping Video recording on Emulator");
+                LOGGER.info("Stopping Video recording on Emulator");
                 Thread.sleep(10000);
 
             }
@@ -87,7 +87,7 @@ public class Flick extends CommandPrompt implements IScreenRecord {
                         .getDevice().getUdid();
             }
 
-            System.out.println(ios);
+            LOGGER.info(ios);
             try {
                 runCommand(ios);
                 Thread.sleep(5000);

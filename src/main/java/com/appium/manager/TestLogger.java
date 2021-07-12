@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 
+import static com.appium.utils.OverriddenVariable.getOverriddenStringValue;
+
 /**
  * Created by saikrisv on 24/01/17.
  */
@@ -58,7 +60,7 @@ public class TestLogger extends Helpers {
                     + udid + "__" + methodName + ".txt");
             log_file_writer.set(new PrintWriter(logFile));
         }
-        if ("true".equalsIgnoreCase(System.getenv("VIDEO_LOGS"))) {
+        if ("true".equalsIgnoreCase(getOverriddenStringValue("VIDEO_LOGS"))) {
             IScreenRecord videoRecording = AppiumScreenRecordFactory.recordScreen();
             videoRecording.startVideoRecording(className, methodName, methodName);
         }
@@ -113,7 +115,7 @@ public class TestLogger extends Helpers {
         String baseHostUrl = "http://" + getHostMachineIpAddress() + ":"
                 + getRemoteAppiumManagerPort(AppiumDeviceManager
                 .getAppiumDevice().getHostName());
-        if ("true".equalsIgnoreCase(System.getenv("VIDEO_LOGS"))) {
+        if ("true".equalsIgnoreCase(getOverriddenStringValue("VIDEO_LOGS"))) {
             setVideoPath("screenshot/" + AppiumDeviceManager.getMobilePlatform()
                     .toString().toLowerCase()
                     + "/" + AppiumDeviceManager.getAppiumDevice().getDevice().getUdid()
@@ -164,7 +166,7 @@ public class TestLogger extends Helpers {
 
     private void stopViewRecording(ITestResult result, String className)
             throws IOException, InterruptedException {
-        if ("true".equalsIgnoreCase(System.getenv("VIDEO_LOGS"))) {
+        if ("true".equalsIgnoreCase(getOverriddenStringValue("VIDEO_LOGS"))) {
             IScreenRecord videoRecording = AppiumScreenRecordFactory.recordScreen();
             videoRecording.stopVideoRecording(className, result.getMethod()
                     .getMethodName(), result.getMethod().getMethodName());
@@ -174,8 +176,9 @@ public class TestLogger extends Helpers {
 
     private void deleteSuccessVideos(ITestResult result, String className) {
         if (result.isSuccess()
-                && (null != System.getenv("KEEP_ALL_VIDEOS"))
-                && !(System.getenv("KEEP_ALL_VIDEOS").equalsIgnoreCase("true"))) {
+                && (null != getOverriddenStringValue("KEEP_ALL_VIDEOS"))
+                && !(getOverriddenStringValue("KEEP_ALL_VIDEOS")
+                .equalsIgnoreCase("true"))) {
             File videoFile = new File(System.getProperty("user.dir")
                     + FileLocations.ANDROID_SCREENSHOTS_DIRECTORY
                     + AppiumDeviceManager.getAppiumDevice().getDevice().getUdid() + "/"

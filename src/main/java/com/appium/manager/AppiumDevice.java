@@ -5,6 +5,7 @@ import com.appium.filelocations.FileLocations;
 import com.github.device.Device;
 import com.video.recorder.AppiumScreenRecordFactory;
 import com.video.recorder.IScreenRecord;
+import org.apache.log4j.Logger;
 import org.openqa.selenium.logging.LogEntries;
 import java.io.File;
 import java.io.IOException;
@@ -13,6 +14,7 @@ import java.util.stream.StreamSupport;
 
 public class AppiumDevice {
 
+    private static final Logger LOGGER = Logger.getLogger(AppiumDevice.class.getName());
     private static final String AVAILABLE = "AVAILABLE";
     private static final String BUSY = "BUSY";
     private final Device device;
@@ -28,6 +30,13 @@ public class AppiumDevice {
         this.ipAddress = ipAddress;
         deviceState = AVAILABLE;
         chromeDriverPort = 0; //Setting as Zero initially
+    }
+
+    @Override
+    public String toString() {
+        String deviceInfo = device.toString();
+        deviceInfo += " :: Is Available? : " + isAvailable();
+        return deviceInfo;
     }
 
     public int getChromeDriverPort() {
@@ -92,7 +101,8 @@ public class AppiumDevice {
                 .getCapability("browserName") == null;
     }
 
-    public String startDataCapture(String scenarioName, Integer scenarioRunCount)
+    public String startDataCapture(String scenarioName,
+                                   Integer scenarioRunCount)
             throws IOException, InterruptedException {
         String fileName = String.format("/run-%s", scenarioRunCount);
         if (isNativeAndroid()) {
@@ -103,15 +113,21 @@ public class AppiumDevice {
                     + File.separator
                     + FileLocations.DEVICE_LOGS_DIRECTORY,
                     fileName);
-            PrintStream logFileStream = new PrintStream(logFile);
-            LogEntries logcatOutput = AppiumDriverManager.getDriver().manage().logs().get("logcat");
-            StreamSupport.stream(logcatOutput.spliterator(), false).forEach(logFileStream::println);
             fileName = logFile.getAbsolutePath();
+            PrintStream logFileStream = new PrintStream(logFile);
+            try {
+                LogEntries logcatOutput = AppiumDriverManager.getDriver()
+                        .manage().logs().get("logcat");
+                StreamSupport.stream(logcatOutput.spliterator(), false)
+                        .forEach(logFileStream::println);
+            } catch (Exception e) {
+                LOGGER.info("ERROR in getting logcat. Skipping logcat capture");
+            }
         }
         return fileName;
     }
 
-    private File createFile(String dirName, String fileName) {
+    public static File createFile(String dirName, String fileName) {
         File logFile = new File(System.getProperty("user.dir")
                  + dirName
                 + fileName + ".txt");

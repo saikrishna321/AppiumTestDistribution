@@ -3,6 +3,7 @@ package com.test.cucumber;
 import com.test.site.UserBaseTest;
 import io.appium.java_client.MobileBy;
 import io.cucumber.core.runtime.CucumberExecutionContext;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;

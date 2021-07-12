@@ -37,7 +37,8 @@
   "hostMachines": [
     {
       "isCloud": true,
-      "machineIP": "hub-cloud.browserstack.com"
+      "machineIP": "hub-cloud.browserstack.com",
+      "cloudName": "browserstack"
     }
   ]
 }

@@ -10,6 +10,7 @@ import com.appium.utils.Helpers;
 import com.appium.utils.ImageUtils;
 import com.epam.reportportal.service.ReportPortal;
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 import org.im4java.core.IM4JavaException;
 import org.openqa.selenium.OutputType;
 import org.testng.ITestResult;
@@ -31,7 +32,7 @@ import static com.appium.manager.AppiumDeviceManager.getMobilePlatform;
  * Created by saikrisv on 26/04/17.
  */
 public class ScreenShotManager extends Helpers {
-
+    private static final Logger LOGGER = Logger.getLogger(ScreenShotManager.class.getName());
     private String screenShotNameWithTimeStamp;
     private ImageUtils imageUtils;
     private String capturedScreen;
@@ -80,7 +81,7 @@ public class ScreenShotManager extends Helpers {
                                     String methodName, String deviceModel) {
         String getDeviceModel = null;
         if (AppiumDriverManager.getDriver().getSessionId() != null) {
-            System.out.println("Current Running Thread Status"
+            LOGGER.info("Current Running Thread Status"
                     + AppiumDriverManager.getDriver().getSessionId());
             File scrFile = AppiumDriverManager.getDriver()
                     .getScreenshotAs(OutputType.FILE);

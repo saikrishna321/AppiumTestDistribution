@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.device.Device;
 import okhttp3.Response;
+import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
@@ -20,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Logger;
 
 public class RemoteAppiumManager extends Helpers implements IAppiumManager {
 

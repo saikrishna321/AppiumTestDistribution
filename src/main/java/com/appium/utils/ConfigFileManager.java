@@ -1,16 +1,17 @@
 package com.appium.utils;
 
+import org.apache.log4j.Logger;
+
+import static com.appium.utils.OverriddenVariable.getOverriddenStringValue;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Integer.parseInt;
-import static java.lang.System.getenv;
 import static java.text.MessageFormat.format;
 import static java.util.Optional.ofNullable;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static java.lang.System.getenv;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
-import java.util.logging.Logger;
 
 /**
  * ConfigFileManager - Read config file statically into configFileMap
@@ -28,16 +29,16 @@ public enum ConfigFileManager {
     RUNNER("distribute");
 
     private static final Properties PROPERTIES;
-    private static final Logger LOGGER = Logger.getLogger(ConfigFileManager.class.getSimpleName());
+    private static final Logger LOGGER = Logger.getLogger(ConfigFileManager.class.getName());
 
     static {
         PROPERTIES = new Properties();
-        String configFile = ofNullable(getenv("CONFIG_FILE")).orElse("./configs/config.properties");
+        String configFile = getOverriddenStringValue("CONFIG_FILE", "./configs/config.properties");
         LOGGER.info(format("Using config file from [{0}]", configFile));
         try (FileInputStream inputStream = new FileInputStream(configFile)) {
             PROPERTIES.load(inputStream);
         } catch (IOException e) {
-            LOGGER.severe(format("Error while loading config file: {0}", e.getMessage()));
+            LOGGER.info(format("Error while loading config file: {0}", e.getMessage()));
         }
     }
 
@@ -48,7 +49,8 @@ public enum ConfigFileManager {
     }
 
     public String get() {
-        return ofNullable(getenv(name())).orElse(PROPERTIES.getProperty(name(), defaultValue));
+        return ofNullable(getenv(name()))
+            .orElse(PROPERTIES.getProperty(name(), defaultValue));
     }
 
     public boolean isTrue() {

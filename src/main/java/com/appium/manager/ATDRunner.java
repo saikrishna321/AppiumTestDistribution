@@ -4,15 +4,15 @@ import com.appium.capabilities.Capabilities;
 import com.appium.device.HostMachineDeviceManager;
 import com.appium.executor.ATDExecutor;
 import com.appium.filelocations.FileLocations;
-
+import org.apache.log4j.Logger;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 import static com.appium.utils.ConfigFileManager.FRAMEWORK;
 import static com.appium.utils.ConfigFileManager.RUNNER;
 import static com.appium.utils.FigletHelper.figlet;
+import static com.appium.utils.OverriddenVariable.getOverriddenStringValue;
 
 public class ATDRunner {
     private static final String ANDROID = "android";
@@ -63,7 +63,7 @@ public class ATDRunner {
 
         createAppiumLogsFolder();
         createSnapshotDirectoryFor();
-        String platform = System.getenv("Platform");
+        String platform = getOverriddenStringValue("Platform");
         if (deviceAllocationManager.getDevices() != null && platform.equalsIgnoreCase(ANDROID)
                 || platform.equalsIgnoreCase(BOTH)) {
             if (!capabilities.getCapabilityObjectFromKey("android").has("automationName")) {

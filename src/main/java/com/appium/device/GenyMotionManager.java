@@ -4,6 +4,7 @@ import com.appium.exceptions.CloudConnectionException;
 import com.appium.utils.Api;
 import com.appium.utils.CommandPrompt;
 import okhttp3.Response;
+import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -12,14 +13,14 @@ import org.json.simple.parser.ParseException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.logging.Logger;
+
+import static com.appium.utils.OverriddenVariable.getOverriddenStringValue;
 
 public class GenyMotionManager {
 
-    private static final Logger LOGGER = Logger
-        .getLogger(GenyMotionManager.class.getSimpleName());
-    private static String cloud_user = System.getenv("CLOUD_USER");
-    private static String cloud_key = System.getenv("CLOUD_KEY");
+    private static final Logger LOGGER = Logger.getLogger(GenyMotionManager.class.getName());
+    private static String cloud_user = getOverriddenStringValue("CLOUD_USER");
+    private static String cloud_key = getOverriddenStringValue("CLOUD_KEY");
 
     protected  static void connectToGenyCloud(String udid, Object devices) {
 
@@ -83,7 +84,7 @@ public class GenyMotionManager {
             String recipe_uuid = null;
             recipe_uuid = api.postWithNoBody("https://api.geny.io/cloud/v1/instances/" + uuid
                 + "/stop-disposable", token.toString());
-            System.out.println(recipe_uuid);
+            LOGGER.info(recipe_uuid);
         });
     }
 }

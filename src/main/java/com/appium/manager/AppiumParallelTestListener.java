@@ -69,7 +69,11 @@ public final class AppiumParallelTestListener extends Helpers
             throw new SkipException("Skipped because property was set to :::"
                 + annotation.platform());
         }
-        new TestExecutionContext(iInvokedMethod.getTestMethod().getMethodName());
+        TestExecutionContext testExecutionContext =
+                new TestExecutionContext(iInvokedMethod.getTestMethod().getMethodName());
+        testExecutionContext.addTestState("appiumDriver",AppiumDriverManager.getDriver());
+        testExecutionContext.addTestState("deviceId",
+                AppiumDeviceManager.getAppiumDevice().getDevice().getUdid());
         queueBeforeInvocationListeners(iInvokedMethod, testResult, iTestNGListeners);
     }
 

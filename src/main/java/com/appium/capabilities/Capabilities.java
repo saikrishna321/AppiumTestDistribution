@@ -1,9 +1,9 @@
 package com.appium.capabilities;
 
 import com.appium.device.AtdEnvironment;
-import com.appium.manager.RemoteAppiumManager;
 import com.appium.utils.FigletHelper;
 import com.appium.utils.JsonParser;
+import org.apache.log4j.Logger;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;
 import org.everit.json.schema.loader.SchemaLoader;
@@ -19,13 +19,14 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import static com.appium.utils.ConfigFileManager.CAPS;
+import static com.appium.utils.OverriddenVariable.getOverriddenStringValue;
 
 public class Capabilities {
-    private static final Logger LOGGER = Logger.getLogger(RemoteAppiumManager.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(Capabilities.class.getName());
 
     private static Capabilities instance;
     private JSONObject capabilities;
@@ -68,6 +69,12 @@ public class Capabilities {
                 atdOverrideEnv.put(key, value);
             }
         });
+        Properties properties = System.getProperties();
+        properties.keySet().forEach(key -> {
+            if (key.toString().startsWith("atd")) {
+                atdOverrideEnv.put(key.toString(), properties.getProperty(key.toString()));
+            }
+        });
         return atdOverrideEnv;
     }
 
@@ -105,7 +112,7 @@ public class Capabilities {
                                    String keyStr,
                                    Object keyvalue) {
         currentPath.append(keyStr);
-        String getFromEnv = System.getenv(currentPath.toString());
+        String getFromEnv = getOverriddenStringValue(currentPath.toString());
         Object updatedValue = (null == getFromEnv) ? keyvalue : getFromEnv;
         objectToUpdate.put(keyStr, updatedValue);
         currentPath.delete(currentPath.lastIndexOf("_") + 1, currentPath.length());
@@ -245,6 +252,14 @@ public class Capabilities {
         }
     }
 
+    public String getCloudName(String host) {
+        try {
+            return appiumServerProp(host, "cloudName");
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     private <T> T appiumServerProp(String host, String arg) throws Exception {
         JSONArray hostMachineObject = Capabilities.getInstance().getHostMachineObject();
         List<Object> hostIP = hostMachineObject.toList();
@@ -313,7 +328,7 @@ public class Capabilities {
                 schema = "/windowsSchema.json";
                 break;
             default:
-                System.out.println("Just for codacy!!");
+                LOGGER.info("Just for codacy!!");
                 break;
 
         }
@@ -323,7 +338,7 @@ public class Capabilities {
     private void isPlatformInEnv() {
         if (atdEnvironment.get("Platform") == null) {
             throw new IllegalArgumentException("Please execute with Platform environment"
-                    + ":: Platform=android/ios/both mvn clean -Dtest=Runner test");
+                    + ":: Platform=android/ios/both/windows mvn clean -Dtest=Runner test");
         }
     }
 

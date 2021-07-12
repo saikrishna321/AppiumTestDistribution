@@ -1,9 +1,5 @@
 package com.appium.manager;
 
-import static com.appium.manager.AppiumDeviceManager.getMobilePlatform;
-import static com.appium.manager.AppiumDeviceManager.isPlatform;
-import static com.appium.utils.ConfigFileManager.CAPS;
-
 import com.appium.capabilities.DesiredCapabilityBuilder;
 import com.appium.entities.MobilePlatform;
 import com.appium.utils.CommandPrompt;
@@ -11,11 +7,10 @@ import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.MobileElement;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.ios.IOSDriver;
-import io.appium.java_client.remote.AndroidMobileCapabilityType;
 import io.appium.java_client.windows.WindowsDriver;
-import io.github.bonigarcia.wdm.WebDriverManager;
-import org.apache.commons.lang3.ArrayUtils;
+import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.io.File;
@@ -25,12 +20,14 @@ import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.Optional;
-import java.util.logging.Logger;
+
+import static com.appium.manager.AppiumDeviceManager.getMobilePlatform;
+import static com.appium.utils.ConfigFileManager.CAPS;
 
 public class AppiumDriverManager {
     private static ThreadLocal<AppiumDriver> appiumDriver = new ThreadLocal<>();
     private DesiredCapabilityBuilder desiredCapabilityBuilder;
-    private static final Logger LOGGER = Logger.getLogger(Class.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(AppiumDriverManager.class.getName());
 
     public AppiumDriverManager() {
         desiredCapabilityBuilder = new DesiredCapabilityBuilder();
@@ -41,38 +38,26 @@ public class AppiumDriverManager {
     }
 
     protected static void setDriver(AppiumDriver driver) {
+        LOGGER.info("AppiumDriverManager: Created AppiumDriver with capabilities: ");
+        Capabilities capabilities = driver.getCapabilities();
+        capabilities.getCapabilityNames().forEach(key -> {
+            LOGGER.info("\t" + key + ":: " + capabilities.getCapability(key));
+        });
         appiumDriver.set(driver);
     }
 
 
     private AppiumDriver<MobileElement> initialiseDriver(DesiredCapabilities desiredCapabilities)
             throws Exception {
-        LOGGER.info("Capabilities: " + desiredCapabilities.toString());
+        LOGGER.info("Initialise Driver with Capabilities: " + desiredCapabilities.toString());
         String remoteWDHubIP = getRemoteWDHubIP();
-        if (isRunningInCloud()) {
-            return getRemoteAppiumDriver(desiredCapabilities, remoteWDHubIP);
-        } else {
-            return getLocalAppiumDriver(desiredCapabilities, remoteWDHubIP);
-        }
+        return createAppiumDriver(desiredCapabilities, remoteWDHubIP);
     }
 
     @NotNull
-    private AppiumDriver getRemoteAppiumDriver(DesiredCapabilities desiredCapabilities,
-                                               String remoteWDHubIP)
+    private AppiumDriver createAppiumDriver(DesiredCapabilities desiredCapabilities,
+                                             String remoteWDHubIP)
             throws MalformedURLException {
-        AppiumDriver currentDriverSession;
-        currentDriverSession = new AppiumDriver<>(new URL(remoteWDHubIP),
-                desiredCapabilities);
-        LOGGER.info("Remote AppiumDriver Session Created ---- "
-                            + currentDriverSession.getSessionId() + "---"
-                            + currentDriverSession.getRemoteAddress().getHost() + "---"
-                            + currentDriverSession.getSessionDetail("udid"));
-        return currentDriverSession;
-    }
-
-    @NotNull
-    private AppiumDriver getLocalAppiumDriver(DesiredCapabilities desiredCapabilities,
-                                              String remoteWDHubIP) throws IOException {
         AppiumDriver currentDriverSession;
         MobilePlatform mobilePlatform = getMobilePlatform();
         switch (mobilePlatform) {
@@ -92,15 +77,11 @@ public class AppiumDriverManager {
                 throw new IllegalStateException("Unexpected value: " + mobilePlatform);
         }
         LOGGER.info("Session Created for "
-                            + AppiumDeviceManager.getMobilePlatform().name()
-                            + " ---- "
-                            + currentDriverSession.getSessionId() + "---"
-                            + currentDriverSession.getSessionDetail("udid"));
+                + AppiumDeviceManager.getMobilePlatform().name()
+                + " ---- "
+                + currentDriverSession.getSessionId() + "---"
+                + currentDriverSession.getSessionDetail("udid"));
         return currentDriverSession;
-    }
-
-    private boolean isRunningInCloud() {
-        return AppiumDeviceManager.getAppiumDevice().getDevice().isCloud();
     }
 
     private String getRemoteWDHubIP() throws Exception {
@@ -110,16 +91,20 @@ public class AppiumDriverManager {
     }
 
 
-    private void startAppiumDriverInstance(Optional<DesiredCapabilities> desiredCapabilities)
+    private AppiumDriver<MobileElement> startAppiumDriverInstance(
+            Optional<DesiredCapabilities> desiredCapabilities)
         throws Exception {
+        LOGGER.info("startAppiumDriverInstance: capabilities: " + desiredCapabilities);
         AppiumDriver<MobileElement> currentDriverSession =
                 initialiseDriver(desiredCapabilities.get());
         AppiumDriverManager.setDriver(currentDriverSession);
+        return currentDriverSession;
     }
 
     // Should be used by Cucumber as well
-    public void startAppiumDriverInstance() throws Exception {
-        startAppiumDriverInstance(Optional.ofNullable(buildDesiredCapabilities(CAPS.get())));
+    public AppiumDriver<MobileElement> startAppiumDriverInstance() throws Exception {
+        LOGGER.info("startAppiumDriverInstance");
+        return startAppiumDriverInstance(Optional.ofNullable(buildDesiredCapabilities(CAPS.get())));
     }
 
     private DesiredCapabilities buildDesiredCapabilities(String capabilityFilePath)

@@ -3,9 +3,10 @@ package com.appium.manager;
 import com.appium.device.DevicesByHost;
 import com.appium.device.HostMachineDeviceManager;
 import com.appium.utils.ArtifactsUploader;
+import org.apache.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * DeviceAllocationManager - Handles device initialisation, allocation and de-allocattion
@@ -13,7 +14,7 @@ import java.util.logging.Logger;
 public class DeviceAllocationManager extends ArtifactsUploader {
 
     private static DeviceAllocationManager instance;
-    private static final Logger LOGGER = Logger.getLogger(Class.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(DeviceAllocationManager.class.getName());
     private HostMachineDeviceManager hostMachineDeviceManager;
     private List<AppiumDevice> allDevices;
     private List<Thread> suspendedThreads;
@@ -75,7 +76,7 @@ public class DeviceAllocationManager extends ArtifactsUploader {
     }
 
     public void allocateDevice(AppiumDevice appiumDevice) {
-        LOGGER.info("Allocated Device " + appiumDevice + " for Execution");
+        LOGGER.info("Allocated Device for execution: " + appiumDevice);
         AppiumDeviceManager.setDevice(appiumDevice);
     }
 

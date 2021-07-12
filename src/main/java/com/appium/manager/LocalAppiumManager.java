@@ -11,7 +11,7 @@ import com.github.iOS.IOSManager;
 import io.appium.java_client.service.local.AppiumDriverLocalService;
 import io.appium.java_client.service.local.AppiumServiceBuilder;
 import io.appium.java_client.service.local.flags.GeneralServerFlag;
-import io.appium.java_client.service.local.flags.ServerArgument;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +19,6 @@ import java.net.ServerSocket;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 public class LocalAppiumManager implements IAppiumManager {
 
@@ -29,7 +28,7 @@ public class LocalAppiumManager implements IAppiumManager {
         return appiumDriverLocalService;
     }
 
-    private static final Logger LOGGER = Logger.getLogger(LocalAppiumManager.class.getSimpleName());
+    private static final Logger LOGGER = Logger.getLogger(LocalAppiumManager.class.getName());
 
     private static void setAppiumDriverLocalService(
             AppiumDriverLocalService appiumDriverLocalService) {
@@ -174,10 +173,10 @@ public class LocalAppiumManager implements IAppiumManager {
 
     private AppiumServiceBuilder getAppiumServerBuilder(String host) throws Exception {
         if (Capabilities.getInstance().getAppiumServerPath(host) == null) {
-            System.out.println("Picking Default Path for AppiumServiceBuilder");
+            LOGGER.info("Picking Default Path for AppiumServiceBuilder");
             return getAppiumServiceBuilderWithDefaultPath();
         } else {
-            System.out.println("Picking UserSpecified Path for AppiumServiceBuilder");
+            LOGGER.info("Picking UserSpecified Path for AppiumServiceBuilder");
             return getAppiumServiceBuilderWithUserAppiumPath(host);
         }
     }

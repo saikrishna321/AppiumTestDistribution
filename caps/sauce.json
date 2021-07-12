@@ -37,7 +37,8 @@
   "hostMachines": [
     {
       "isCloud": true,
-      "machineIP": "ondemand.eu-central-1.saucelabs.com"
+      "machineIP": "ondemand.eu-central-1.saucelabs.com",
+      "cloudName": "sauce"
     }
   ]
 }

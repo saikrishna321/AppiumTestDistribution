@@ -14,6 +14,7 @@ import io.appium.java_client.remote.AndroidMobileCapabilityType;
 import io.appium.java_client.remote.IOSMobileCapabilityType;
 import io.appium.java_client.remote.MobileCapabilityType;
 import org.apache.commons.validator.routines.UrlValidator;
+import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
@@ -24,6 +25,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 import static com.appium.manager.AppiumDeviceManager.isPlatform;
+import static com.appium.utils.OverriddenVariable.getOverriddenStringValue;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
@@ -32,6 +34,7 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
  */
 public class DesiredCapabilityBuilder extends ArtifactsUploader {
 
+    private static final Logger LOGGER = Logger.getLogger(DesiredCapabilityBuilder.class.getName());
     public static final String APP_PACKAGE = "APP_PACKAGE";
     private AvailablePorts availablePorts;
 
@@ -72,13 +75,16 @@ public class DesiredCapabilityBuilder extends ArtifactsUploader {
             deviceProperty.getDevice().getName());
         desiredCapabilities.setCapability(MobileCapabilityType.DEVICE_NAME,
             deviceProperty.getDevice().getName());
-        desiredCapabilities.setCapability(CapabilityType.BROWSER_NAME, "");
-        desiredCapabilities.setCapability(CapabilityType.VERSION,
-            deviceProperty.getDevice().getOsVersion());
-        desiredCapabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION,
-            deviceProperty.getDevice().getOsVersion());
+        Object pCloudyApiKey = desiredCapabilities.getCapability("pCloudy_ApiKey");
+        if (null == pCloudyApiKey) {
+            desiredCapabilities.setCapability(CapabilityType.BROWSER_NAME, "");
+            desiredCapabilities.setCapability(CapabilityType.VERSION,
+                    deviceProperty.getDevice().getOsVersion());
+            desiredCapabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION,
+                    deviceProperty.getDevice().getOsVersion());
+        }
+        LOGGER.info("desiredCapabilityForCloud: " + desiredCapabilities);
         desiredCapabilitiesThreadLocal.set(desiredCapabilities);
-
     }
 
     private void capabilityObject(DesiredCapabilities desiredCapabilities,
@@ -207,17 +213,17 @@ public class DesiredCapabilityBuilder extends ArtifactsUploader {
     }
 
     private void appPackage(DesiredCapabilities desiredCapabilities) {
-        if (System.getenv(APP_PACKAGE) != null) {
+        if (getOverriddenStringValue(APP_PACKAGE) != null) {
             desiredCapabilities.setCapability(AndroidMobileCapabilityType.APP_PACKAGE,
-                System.getenv(APP_PACKAGE));
+                getOverriddenStringValue(APP_PACKAGE));
         }
     }
 
     private void appPackageBundle(DesiredCapabilities iOSCapabilities) {
-        if (System.getenv(APP_PACKAGE) != null) {
+        if (getOverriddenStringValue(APP_PACKAGE) != null) {
             iOSCapabilities
                 .setCapability(IOSMobileCapabilityType.BUNDLE_ID,
-                    System.getenv(APP_PACKAGE));
+                    getOverriddenStringValue(APP_PACKAGE));
         }
     }
 }
